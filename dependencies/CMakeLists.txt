@@ -8,7 +8,12 @@ target_include_directories(glfw-template PRIVATE ./glad/include)
 target_include_directories(glfw-template PRIVATE ./imgui)
 target_include_directories(glfw-template PRIVATE ./imgui/backends)
 
+target_include_directories(glfw-template PRIVATE ./imguizmo)
+
 target_include_directories(glfw-template PRIVATE ./glm)
+
+target_include_directories(glfw-template PRIVATE ./stb)
+
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
