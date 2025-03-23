@@ -27,7 +27,9 @@ add_executable(glfw-template ${SOURCES}
         src/Utils/ColorUtils.h
         src/Shader.cpp
         src/Shader.h
-        src/Utils/TextureUtils.h)
+        src/Utils/TextureUtils.h
+        src/Utils/GLMUtils.h
+        src/Camera/Camera.h)
 
 target_compile_options(glfw-template PRIVATE -Wall)
 

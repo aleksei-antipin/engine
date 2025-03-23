@@ -10,12 +10,15 @@
 #include "Utils/TextureUtils.h"
 
 #include "ImGuizmo.h"
+#include "Camera/Camera.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "Utils/GLMUtils.h"
 
-void Engine::Run() {
+
+void Engine::Initialize() {
     if (!glfwInit()) {
         return;
     }
@@ -27,7 +30,7 @@ void Engine::Run() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    window = glfwCreateWindow(800, 600, "Triangle Example", nullptr, nullptr);
+    window = glfwCreateWindow(width, height, "Triangle Example", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
         return;
@@ -39,49 +42,60 @@ void Engine::Run() {
         return;
     }
 
-    const Shader shader("default.vert", "default.frag");
+    // const Shader shader("default.vert", "default.frag");
 
-    const std::vector<GLfloat> vertices = {
-        // x,     y,     z,    r, g, b,    u, v
-        // Front face
-        -0.5f, -0.25f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // 0
-        0.5f, -0.25f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // 1
-        0.5f, 0.25f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // 2
-        -0.5f, 0.25f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // 3
+    shader = Shader("default.vert", "default.frag");
 
-        // Back face
-        -0.5f, -0.25f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, // 4
-        0.5f, -0.25f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, // 5
-        0.5f, 0.25f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // 6
-        -0.5f, 0.25f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f // 7
-    };
-
-    const std::vector<GLuint> indices = {
+    vertices = {
         // Front
-        0, 1, 2, 2, 3, 0,
+        -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+
         // Back
-        5, 4, 7, 7, 6, 5,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
         // Left
-        4, 0, 3, 3, 7, 4,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+
         // Right
-        1, 5, 6, 6, 2, 1,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
         // Top
-        3, 2, 6, 6, 7, 3,
+        -0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+
         // Bottom
-        4, 5, 1, 1, 0, 4
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f
     };
 
-    const std::vector<float> texCoords = {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.5f, 1.0f
+    indices = {
+        0, 1, 2, 2, 3, 0,
+        4, 5, 6, 6, 7, 4,
+        8, 9, 10, 10, 11, 8,
+        12, 13, 14, 14, 15, 12,
+        16, 17, 18, 18, 19, 16,
+        20, 21, 22, 22, 23, 20
     };
 
-    unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    unsigned int VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
@@ -93,8 +107,6 @@ void Engine::Run() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-
-    unsigned int EBO;
     glGenBuffers(1, &EBO);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -102,25 +114,12 @@ void Engine::Run() {
 
     glBindVertexArray(0);
 
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)
-    };
-
     int width, height, nrChannels;
-    const unsigned int texture1 = TextureUtils::CreateTexture("resources/container.jpg", width, height,
-                                                              nrChannels, GL_RGB);
+    texture1 = TextureUtils::CreateTexture("resources/container.jpg", width, height,
+                                           nrChannels, GL_RGB);
 
-    const unsigned int texture2 = TextureUtils::CreateTexture("resources/awesomeface.png", width, height,
-                                                              nrChannels, GL_RGBA, true);
+    texture2 = TextureUtils::CreateTexture("resources/awesomeface.png", width, height,
+                                           nrChannels, GL_RGBA, true);
 
 
     IMGUI_CHECKVERSION();
@@ -133,100 +132,133 @@ void Engine::Run() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    const auto clear_color = ColorUtils::Gray();
+    clear_color = ColorUtils::Gray();
 
-    double previousTime = glfwGetTime();
+    isFirmware = true;
 
-    bool isFirmware = true;
+    mixValue = 0.2f;
 
-    float mixValue = 0.2f;
-
-    float rotation = 0.0f;
 
     shader.use();
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
 
-    auto model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    auto view = glm::mat4(1.0f);
+    view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-    auto projection = glm::mat4(1.0f);
-    const auto aspect = width / static_cast<float>(height);
-    projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+    model = glm::mat4(1.0f);
 
-    shader.setMat4("model", glm::value_ptr(model));
-    shader.setMat4("view", glm::value_ptr(view));
-    shader.setMat4("projection", glm::value_ptr(projection));
+    auto aspect = width / (float) height;
 
+    orthoProjection = glm::ortho(-1.0f * aspect, 1.0f * aspect, -1.0f, 1.0f, 0.1f, 100.0f);
+    perspectiveProjection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+
+    projection = isOrtho ? orthoProjection : perspectiveProjection;
 
     glEnable(GL_DEPTH_TEST);
 
+    int display_w, display_h;
+    glfwGetFramebufferSize(window, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+}
+
+
+void Engine::Run() {
     while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-
-        ImGui::Begin("Settings");
-        ImGui::Checkbox("Firmware", &isFirmware);
-        ImGui::SliderFloat("Mix Value", &mixValue, 0.0f, 1.0f);
-        ImGui::SliderAngle("Rotation", &rotation);
-        ImGui::End();
-
-
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-
-        auto time = glfwGetTime();
-        auto deltaTime = time - previousTime;
-        previousTime = time;
-
-        shader.setFloat("mixValue", mixValue);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
-
-
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // bind textures on corresponding texture units
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-        if (isFirmware) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        } else {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
-
-        for (unsigned int i = 0; i < 10; i++) {
-            auto model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, rotation, glm::vec3(1.0f, 0.3f, 0.5f));
-
-            shader.setMat4("model", glm::value_ptr(model));
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        }
-
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
+        Tick();
     }
+}
 
 
+void Engine::Terminate() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glfwTerminate();
+}
+
+void Engine::TickUI() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+
+    ImGui::Begin("Settings");
+    ImGui::Checkbox("Firmware", &isFirmware);
+    ImGui::Checkbox("Ortho", &isOrtho);
+    ImGui::ColorEdit4("Clear Color", glm::value_ptr(clear_color));
+    ImGui::SliderFloat("Mix Value", &mixValue, 0.0f, 1.0f);
+
+    ImGui::SliderFloat("Rotation X", &rotationX, 0.0f, 360.0f);
+    ImGui::SliderFloat("Rotation Y", &rotationY, 0.0f, 360.0f);
+    ImGui::SliderFloat("Rotation Z", &rotationZ, 0.0f, 360.0f);
+    ImGui::End();
+
+
+    ImGui::Render();
+}
+
+void Engine::TickUIComplete() {
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    glfwSwapBuffers(window);
+}
+
+void Engine::TickRender() {
+    projection = isOrtho ? orthoProjection : perspectiveProjection;
+
+
+    model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(rotationX), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(rotationY), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(rotationZ), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    shader.setMat4("model", glm::value_ptr(model));
+
+    shader.setMat4("view", glm::value_ptr(camera.GetViewMatrix()));
+
+    shader.setMat4("projection", glm::value_ptr(projection));
+    shader.setFloat("mixValue", mixValue);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
+
+
+    glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+    if (isFirmware) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+}
+
+void Engine::HandleInput() {
+    glfwPollEvents();
+
+    camera.ProcessInput(window, deltaTime);
+}
+
+void Engine::Tick() {
+    UpdateTime();
+    HandleInput();
+    TickUI();
+    TickRender();
+    TickUIComplete();
+}
+
+void Engine::UpdateTime() {
+    const auto time = glfwGetTime();
+    deltaTime = time - lastTime;
+    lastTime = time;
 }

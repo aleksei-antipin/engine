@@ -14,6 +14,8 @@ class Shader {
 public:
     unsigned int ID;
 
+    Shader() = default;
+
     Shader(const char *vertexName, const char *fragmentName);
 
     void use() const;
