@@ -13,3 +13,6 @@
 [submodule "dependencies/imguizmo"]
 	path = dependencies/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "dependencies/assimp"]
+	path = dependencies/assimp
+	url = https://github.com/assimp/assimp.git

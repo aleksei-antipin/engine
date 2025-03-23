@@ -35,7 +35,7 @@ target_compile_options(glfw-template PRIVATE -Wall)
 
 add_subdirectory(dependencies)
 
-target_link_libraries(glfw-template PRIVATE glfw glad)
+target_link_libraries(glfw-template PRIVATE glfw glad assimp)
 
 add_custom_target(copy_shaders ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory

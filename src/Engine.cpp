@@ -17,11 +17,19 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "Utils/GLMUtils.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 
 void Engine::Initialize() {
     if (!glfwInit()) {
         return;
     }
+
+    auto path = "./resources/spider.glb";
+    Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
