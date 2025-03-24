@@ -21,6 +21,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <entt/entt.hpp>
+
 
 void Engine::Initialize() {
     if (!glfwInit()) {
@@ -30,6 +32,14 @@ void Engine::Initialize() {
     auto path = "./resources/spider.glb";
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+    entt::registry registry; // Создаём реестр сущностей
+
+    auto entity = registry.create(); // Создаём сущность
+    registry.emplace<int>(entity, 42); // Добавляем компонент (int)
+
+    int value = registry.get<int>(entity); // Получаем компонент
+    std::cout << "Entity has value: " << value << std::endl;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);

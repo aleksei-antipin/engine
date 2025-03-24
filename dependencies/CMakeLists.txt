@@ -2,6 +2,7 @@
 add_subdirectory(glfw)
 add_subdirectory(glad)
 add_subdirectory(assimp)
+add_subdirectory(entt)
 
 target_include_directories(glfw-template PRIVATE ./glfw/include)
 target_include_directories(glfw-template PRIVATE ./glfw/include)
@@ -17,6 +18,8 @@ target_include_directories(glfw-template PRIVATE ./glm)
 target_include_directories(glfw-template PRIVATE ./stb)
 
 target_include_directories(glfw-template PRIVATE ./assimp/include)
+
+target_include_directories(glfw-template PRIVATE ./entt/single_include)
 
 option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 option(ASSIMP_BUILD_SAMPLES OFF)
