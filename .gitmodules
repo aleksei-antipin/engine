@@ -19,3 +19,6 @@
 [submodule "dependencies/entt"]
 	path = dependencies/entt
 	url = https://github.com/skypjack/entt.git
+[submodule "dependencies/sol"]
+	path = dependencies/sol
+	url = https://github.com/ThePhD/sol2.git

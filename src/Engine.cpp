@@ -28,19 +28,6 @@ void Engine::Initialize() {
     if (!glfwInit()) {
         return;
     }
-
-    auto path = "./resources/spider.glb";
-    Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-
-    entt::registry registry; // Создаём реестр сущностей
-
-    auto entity = registry.create(); // Создаём сущность
-    registry.emplace<int>(entity, 42); // Добавляем компонент (int)
-
-    int value = registry.get<int>(entity); // Получаем компонент
-    std::cout << "Entity has value: " << value << std::endl;
-
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -66,15 +53,34 @@ void Engine::Initialize() {
 
     vertices = {
         // Front
-        -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f,
+
+        -0.5f, 0.5f, 0.5f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f,
+
+        0.5f, 0.5f, 0.5f,
+        1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+
+        0.5f, -0.5f, 0.5f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f,
 
         // Back
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f,
+
+        -0.5f, 0.5f, -0.5f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f,
+
+        0.5f, 0.5f, -0.5f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f,
+
         0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
 
         // Left
@@ -178,6 +184,9 @@ void Engine::Initialize() {
     int display_w, display_h;
     glfwGetFramebufferSize(window, &display_w, &display_h);
     glViewport(0, 0, display_w, display_h);
+
+    cubePosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 }
 
 
@@ -257,7 +266,7 @@ void Engine::TickRender() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
-
+    shader.setMat4("model", glm::value_ptr(model));
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 

@@ -20,7 +20,6 @@ public:
     void Terminate();
 
 private:
-
     int width = 800;
     int height = 600;
 
@@ -51,7 +50,15 @@ private:
     glm::mat4 model;
     glm::mat4 projection;
 
+    glm::vec3 objectColor;
+
+    glm::vec3 lightColor;
+
     Camera camera;
+
+    glm::vec3 lightPos;
+
+    glm::vec3 cubePosition;
 
 
     void TickUI();

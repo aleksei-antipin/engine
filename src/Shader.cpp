@@ -67,7 +67,7 @@ std::string readShaderCode(const char *name) {
         shaderFile.close();
         shaderCode = shaderStream.str();
     } catch (const std::exception &e) {
-        throw std::runtime_error("Failed to compile shader: " + path + "\n" + e.what());
+        throw std::runtime_error("Failed to read shader: " + path + "\n" + e.what());
     }
 
     return shaderCode;

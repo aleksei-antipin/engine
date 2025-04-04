@@ -19,6 +19,7 @@ file(GLOB SOURCES
         "dependencies/imguizmo/*.h"
 
         "dependencies/stb/stb_image.h"
+        "dependencies/sol/sol.hpp"
 )
 
 add_executable(glfw-template ${SOURCES}
@@ -35,7 +36,7 @@ target_compile_options(glfw-template PRIVATE -Wall)
 
 add_subdirectory(dependencies)
 
-target_link_libraries(glfw-template PRIVATE glfw glad assimp EnTT::EnTT)
+target_link_libraries(glfw-template PRIVATE glfw glad assimp EnTT::EnTT lua::lua sol2::sol2)
 
 add_custom_target(copy_shaders ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -52,5 +53,14 @@ add_custom_target(copy_resources ALL
         COMMENT "Copying resources folder to binary directory"
 )
 
+add_custom_target(copy_lua_scripts ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/scripts
+        ${CMAKE_BINARY_DIR}/scripts
+        COMMENT "Copying lua scripts folder to binary directory"
+)
+
+
 add_dependencies(glfw-template copy_shaders)
 add_dependencies(glfw-template copy_resources)
+add_dependencies(glfw-template copy_lua_scripts)
