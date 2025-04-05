@@ -43,6 +43,9 @@ void Engine::Initialize() {
 
     glfwMakeContextCurrent(window);
 
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         return;
     }
@@ -167,15 +170,13 @@ void Engine::Initialize() {
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
 
-    view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    // view = glm::mat4(1.0f);
+    // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
     model = glm::mat4(1.0f);
 
-    auto aspect = width / (float) height;
 
-    orthoProjection = glm::ortho(-1.0f * aspect, 1.0f * aspect, -1.0f, 1.0f, 0.1f, 100.0f);
-    perspectiveProjection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+    RecalculateProjection();
 
     projection = isOrtho ? orthoProjection : perspectiveProjection;
 
@@ -288,4 +289,18 @@ void Engine::UpdateTime() {
     const auto time = glfwGetTime();
     deltaTime = time - lastTime;
     lastTime = time;
+}
+
+void Engine::OnResize(int width, int height) {
+    this->width = width;
+    this->height = height;
+
+    RecalculateProjection();
+}
+
+void Engine::RecalculateProjection() {
+    auto aspect = width / (float) height;
+
+    orthoProjection = glm::ortho(-1.0f * aspect, 1.0f * aspect, -1.0f, 1.0f, 0.1f, 100.0f);
+    perspectiveProjection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
 }

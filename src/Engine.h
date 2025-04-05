@@ -46,7 +46,7 @@ private:
     glm::mat4 orthoProjection;
     glm::mat4 perspectiveProjection;
 
-    glm::mat4 view;
+    // glm::mat4 view;
     glm::mat4 model;
     glm::mat4 projection;
 
@@ -72,4 +72,16 @@ private:
     void Tick();
 
     void UpdateTime();
+
+    void OnResize(int width, int height);
+
+    void RecalculateProjection();
+
+    static void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+        const auto engine = static_cast<Engine *>(glfwGetWindowUserPointer(window));
+        if (!engine) {
+            return;
+        }
+        engine->OnResize(width, height);
+    }
 };

@@ -25,10 +25,16 @@ std::string readScript(const char *name) {
     return shaderCode;
 }
 
-int main() {
+void testLua() {
     std::cout << "Hello, from C++\n";
     sol::state lua;
     lua.open_libraries(sol::lib::base, sol::lib::package);
+    sol::table package = lua["package"];
+    std::string path = package["path"];
+    path += ";./scripts/?.lua;./scripts/?/init.lua;";
+    package["path"] = path;
+
+    std::cout << path << std::endl;
 
     const auto script = readScript("test.lua");
 
@@ -37,6 +43,10 @@ int main() {
         sol::error err = result;
         std::cout << err.what();
     }
+}
+
+int main() {
+    testLua();
 
     auto *engine = new Engine();
     engine->Initialize();
